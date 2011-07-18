@@ -1,0 +1,53 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using mPower.MembershipApi.Documents;
+
+namespace mPower.MembershipApi
+{
+    class Program
+    {
+        private static string _apiPrivateKey = "F89DA1C7DC2B40319802BCF4F6B2C121";
+        private static string _apiBaseUrl = "http://staging.mpowering.com/api/membership";
+        private static string _apiBaseUrlLocal = "http://localhost:8080/api/membership";
+
+        static void Main(string[] args)
+        {
+            var membershipService = new MembershipApiService(_apiPrivateKey, _apiBaseUrl);
+            UserDocument user;
+            var userId = Guid.NewGuid().ToString();
+<<<<<<< HEAD
+            
+            user = membershipService.CreateUser( userId, "TestFirst", "TestLast", "test1@test.com", "test1@test.com", "TestPassword");
+            
+            user = membershipService.LogIn("anorsich", "asd123");
+            
+=======
+            var userName = Guid.NewGuid().ToString();
+            user = membershipService.CreateUser(userId, "TestFirst", "TestLast", "an.orsich@gmail.com", userName, "asd123");
+
+            user = membershipService.LogIn(userName, "asd123");
+>>>>>>> 63903084ba3a1d197ff1ed51421ae0544a72b159
+            membershipService.Activate(userId);
+            
+            membershipService.DeActivate(userId);
+            
+            user = membershipService.LogInByToken(user.AuthToken);
+            
+            membershipService.ChangePassword(userId, "asd123", "asd321");
+
+            var token = membershipService.GetResetPasswodToken("an.orsich@gmail.com");
+
+            var newPassword = membershipService.ResetPassword(token);
+
+            membershipService.AddAuthenticationQuestion(userId, "Where is your mother born?", "Novogrudok");
+            var question = membershipService.GetAuthenticationQuestion(userId);
+            bool isValid = membershipService.ValidateAuthenticationQuestion(userId, "Novogrudok");
+            user = membershipService.GetUserByUsername(userName);
+            membershipService.DeleteUser(userId);
+
+            int i = 1;
+        }
+    }
+}
