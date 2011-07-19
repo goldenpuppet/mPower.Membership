@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using mPower.MembershipApi.Documents;
@@ -23,7 +24,8 @@ namespace mPower.MembershipApi
         AddAuthenticationQuestion,
         GetAuthenticationQuestion,
         ValidateAuthenticationQuestion,
-        GetUserByUsername
+        GetUserByUsername,
+        HasAccess
     }
 
     public class MembershipApiService
@@ -164,6 +166,18 @@ namespace mPower.MembershipApi
             return user;
         }
 
+        public bool HasAccess(string userId, params UserPermissionEnum[] permissions)
+        {
+            var permissionsString = String.Join(",", permissions.Select(x => x.ToString()));
+
+            var requestParameters = new NameValueCollection { { "permissions", permissionsString }, { "userId", userId } };
+
+            var result = ExecuteAction(MembershipApiMethod.HasAccess, requestParameters);
+
+            var isValid = JsonConvert.DeserializeObject<bool>(result.data);
+
+            return isValid;
+        }
 
         #region private part
 
