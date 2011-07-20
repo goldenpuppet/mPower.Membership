@@ -1,5 +1,6 @@
 *resharper.user
 build/
+<<<<<<< HEAD
 [Bb]in/
 [Oo]bj/
 [Hh]elp/
@@ -14,3 +15,13 @@ _ReSharper.*/
 $
 /source/mPower.Accounting.Tests/App.config
 /source/mPower.Web/TenantAssemblies/*.*
+=======
+Logs/
+logs/
+[Bb]in/
+[Oo]bj/
+[Hh]elp/
+*.suo
+*.sln.cache
+_ReSharper.*/
+>>>>>>> 1ada8ba47c6dd86f61697de74271d61bf7a4d4dc
