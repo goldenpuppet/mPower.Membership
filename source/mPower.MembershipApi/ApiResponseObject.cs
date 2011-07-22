@@ -1,4 +1,6 @@
-﻿namespace mPower.MembershipApi
+﻿using mPower.MembershipApi.Enums;
+
+namespace mPower.MembershipApi
 {
     public class ApiResponseObject
     {

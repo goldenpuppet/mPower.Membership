@@ -35,7 +35,10 @@
       <HintPath>..\..\lib\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,12 +47,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiResponseObject.cs" />
-    <Compile Include="ApiResponseStatusEnum.cs" />
+    <Compile Include="Enums\ApiResponseStatusEnum.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Documents\UserDocument.cs" />
-    <Compile Include="MembershipApiErrorCodesEnum.cs" />
+    <Compile Include="Enums\MembershipApiMethodEnum.cs" />
+    <Compile Include="MembershipApiAccessDeniedException.cs" />
+    <Compile Include="Enums\MembershipApiErrorCodesEnum.cs" />
     <Compile Include="MembershipApiService.cs" />
+    <Compile Include="PermissionsAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserPermissionEnum.cs" />
+    <Compile Include="Enums\UserPermissionEnum.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

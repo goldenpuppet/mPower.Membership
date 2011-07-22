@@ -5,29 +5,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using mPower.MembershipApi.Documents;
+using mPower.MembershipApi.Enums;
 using Newtonsoft.Json;
 
 namespace mPower.MembershipApi
 {
-    public enum MembershipApiMethod
-    {
-        Test,
-        CreateUser,
-        LogIn,
-        Activate,
-        DeActivate,
-        ChangePassword,
-        LogInByToken,
-        GetResetPasswodToken,
-        ResetPassword,
-        DeleteUser,
-        AddAuthenticationQuestion,
-        GetAuthenticationQuestion,
-        ValidateAuthenticationQuestion,
-        GetUserByUsername,
-        HasAccess
-    }
-
     public class MembershipApiService
     {
         public MembershipApiService(string apiPrivateKey, string apiBaseUrl)
@@ -38,7 +20,7 @@ namespace mPower.MembershipApi
 
         public ApiResponseObject Test()
         {
-            return ExecuteAction(MembershipApiMethod.Test, new NameValueCollection());
+            return ExecuteAction(MembershipApiMethodEnum.Test, new NameValueCollection());
         }
 
         public UserDocument CreateUser(string firstName, string lastName, string email, string userName, string password)
@@ -50,7 +32,7 @@ namespace mPower.MembershipApi
             requestParameters.Add("UserName", userName);
             requestParameters.Add("Password", password);
 
-            var result = ExecuteAction(MembershipApiMethod.CreateUser, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.CreateUser, requestParameters);
 
             var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
@@ -61,7 +43,7 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userName", userName }, { "password", password } };
 
-            var result = ExecuteAction(MembershipApiMethod.LogIn, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.LogIn, requestParameters);
             var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
@@ -71,7 +53,17 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "authToken", authToken } };
 
-            var result = ExecuteAction(MembershipApiMethod.LogInByToken, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.LogInByToken, requestParameters);
+            var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
+
+            return user;
+        }
+
+        public UserDocument LoginByUserIdAndPassword(string userId, string password)
+        {
+            var requestParameters = new NameValueCollection { { "userId", userId }, { "password", password } };
+
+            var result = ExecuteAction(MembershipApiMethodEnum.LoginByUserIdAndPassword, requestParameters);
             var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
@@ -81,28 +73,28 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userId", userId } };
 
-            ExecuteAction(MembershipApiMethod.Activate, requestParameters);
+            ExecuteAction(MembershipApiMethodEnum.Activate, requestParameters);
         }
 
         public void DeActivate(string userId)
         {
             var requestParameters = new NameValueCollection { { "userId", userId } };
 
-            ExecuteAction(MembershipApiMethod.DeActivate, requestParameters);
+            ExecuteAction(MembershipApiMethodEnum.DeActivate, requestParameters);
         }
 
         public void ChangePassword(string userId, string oldPassword, string newPassword)
         {
             var requestParameters = new NameValueCollection { { "userId", userId }, { "oldPassword", oldPassword }, { "newPassword", newPassword } };
 
-            ExecuteAction(MembershipApiMethod.ChangePassword, requestParameters);
+            ExecuteAction(MembershipApiMethodEnum.ChangePassword, requestParameters);
         }
 
         public string GetResetPasswodToken(string email)
         {
             var requestParameters = new NameValueCollection { { "email", email } };
 
-            var result = ExecuteAction(MembershipApiMethod.GetResetPasswodToken, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.GetResetPasswodToken, requestParameters);
 
             var token = JsonConvert.DeserializeObject<string>(result.data);
 
@@ -113,7 +105,7 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "resetToken", resetToken } };
 
-            var result = ExecuteAction(MembershipApiMethod.ResetPassword, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.ResetPassword, requestParameters);
 
             var newPassword = JsonConvert.DeserializeObject<string>(result.data);
 
@@ -124,21 +116,21 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userId", userId } };
 
-            ExecuteAction(MembershipApiMethod.DeleteUser, requestParameters);
+            ExecuteAction(MembershipApiMethodEnum.DeleteUser, requestParameters);
         }
 
         public void AddAuthenticationQuestion(string userId, string question, string answer)
         {
             var requestParameters = new NameValueCollection { { "userId", userId }, { "question", question }, { "answer", answer } };
 
-            ExecuteAction(MembershipApiMethod.AddAuthenticationQuestion, requestParameters);
+            ExecuteAction(MembershipApiMethodEnum.AddAuthenticationQuestion, requestParameters);
         }
 
         public string GetAuthenticationQuestion(string userId)
         {
             var requestParameters = new NameValueCollection { { "userId", userId } };
 
-            var result = ExecuteAction(MembershipApiMethod.GetAuthenticationQuestion, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.GetAuthenticationQuestion, requestParameters);
 
             var question = JsonConvert.DeserializeObject<string>(result.data);
 
@@ -149,7 +141,7 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userId", userId }, { "answer", answer } };
 
-            var result = ExecuteAction(MembershipApiMethod.ValidateAuthenticationQuestion, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.ValidateAuthenticationQuestion, requestParameters);
 
             var isValid = JsonConvert.DeserializeObject<bool>(result.data);
 
@@ -160,7 +152,7 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userName", userName } };
 
-            var result = ExecuteAction(MembershipApiMethod.GetUserByUsername, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.GetUserByUsername, requestParameters);
             var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
@@ -168,11 +160,11 @@ namespace mPower.MembershipApi
 
         public bool HasAccess(string userId, params UserPermissionEnum[] permissions)
         {
-            var permissionsString = String.Join(",", permissions.Select(x => x.ToString()));
+            var permissionsString = String.Join(",", permissions.Select(x => (int)x));
 
             var requestParameters = new NameValueCollection { { "permissions", permissionsString }, { "userId", userId } };
 
-            var result = ExecuteAction(MembershipApiMethod.HasAccess, requestParameters);
+            var result = ExecuteAction(MembershipApiMethodEnum.HasAccess, requestParameters);
 
             var isValid = JsonConvert.DeserializeObject<bool>(result.data);
 
@@ -184,12 +176,12 @@ namespace mPower.MembershipApi
         private readonly string _apiPrivateKey;
         private readonly string _apiBaseUrl;
 
-        private Uri BuildPathToTheAction(MembershipApiMethod method)
+        private Uri BuildPathToTheAction(MembershipApiMethodEnum method)
         {
             return new Uri(String.Format("{0}/{1}", _apiBaseUrl, method));
         }
 
-        private ApiResponseObject ExecuteAction(MembershipApiMethod method, NameValueCollection parameters)
+        private ApiResponseObject ExecuteAction(MembershipApiMethodEnum method, NameValueCollection parameters)
         {
             parameters.Add("key", _apiPrivateKey);
             var queryString = ToQueryString(parameters);
