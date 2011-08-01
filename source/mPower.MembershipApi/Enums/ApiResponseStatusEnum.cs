@@ -1,5 +1,5 @@
 ﻿
-namespace mPower.MembershipApi
+namespace mPower.MembershipApi.Enums
 {
     public enum ApiResponseStatusEnum
     {
