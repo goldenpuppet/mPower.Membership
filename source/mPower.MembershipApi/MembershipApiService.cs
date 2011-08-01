@@ -216,12 +216,16 @@ namespace mPower.MembershipApi
             }
 
             var item = JsonConvert.DeserializeObject<ApiResponseObject>(responseText);
+            
 
             //I am not throw exception for the ModelState errors
             if (item.status == ApiResponseStatusEnum.Error && item.error_code != MembershipApiErrorCodesEnum.ModelStateErrors)
             {
                 throw new Exception(String.Format("Remote server returned following error code: {0}({1}), {2}",
-                                                                                                        item.log));
+                                                                                                        item.status,
+                                                                                                        item.error_code,
+                                                                                                        item.log
+                                                                                                        ));
             }
 
             return item;
