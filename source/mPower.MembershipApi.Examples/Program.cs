@@ -13,7 +13,7 @@ namespace mPower.MembershipApi.Examples
 
         static void Main(string[] args)
         {
-            var membershipService = new MembershipApiService(_apiPrivateKey, _apiBaseUrlLocal);
+            var membershipService = new MembershipApiService(_apiPrivateKey, _apiBaseUrl);
             UserDocument user;
             var userId = String.Empty;
             var email = "test@test.com";
