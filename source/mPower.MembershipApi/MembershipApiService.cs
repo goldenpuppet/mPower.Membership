@@ -43,8 +43,10 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userName", userName }, { "password", password } };
 
-            var result = ExecuteAction(MembershipApiMethodEnum.LogIn, requestParameters);
-            var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
+            var result = ExecuteAction(MembershipApiMethodEnum.LogIn, requestParameters, false);
+            UserDocument user = null;
+            if (!String.IsNullOrEmpty(result.data))
+                user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
         }
@@ -53,8 +55,11 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "authToken", authToken } };
 
-            var result = ExecuteAction(MembershipApiMethodEnum.LogInByToken, requestParameters);
-            var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
+            var result = ExecuteAction(MembershipApiMethodEnum.LogInByToken, requestParameters, false);
+
+            UserDocument user = null;
+            if (!String.IsNullOrEmpty(result.data))
+                user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
         }
@@ -63,8 +68,23 @@ namespace mPower.MembershipApi
         {
             var requestParameters = new NameValueCollection { { "userId", userId }, { "password", password } };
 
-            var result = ExecuteAction(MembershipApiMethodEnum.LoginByUserIdAndPassword, requestParameters);
-            var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
+            var result = ExecuteAction(MembershipApiMethodEnum.LoginByUserIdAndPassword, requestParameters, false);
+            UserDocument user = null;
+            if (!String.IsNullOrEmpty(result.data))
+                user = JsonConvert.DeserializeObject<UserDocument>(result.data);
+
+            return user;
+        }
+
+        public UserDocument GetUserByUsername(string userName)
+        {
+            var requestParameters = new NameValueCollection { { "userName", userName } };
+
+            var result = ExecuteAction(MembershipApiMethodEnum.GetUserByUsername, requestParameters, false);
+
+            UserDocument user = null;
+            if (!String.IsNullOrEmpty(result.data))
+                user = JsonConvert.DeserializeObject<UserDocument>(result.data);
 
             return user;
         }
@@ -148,16 +168,6 @@ namespace mPower.MembershipApi
             return isValid;
         }
 
-        public UserDocument GetUserByUsername(string userName)
-        {
-            var requestParameters = new NameValueCollection { { "userName", userName } };
-
-            var result = ExecuteAction(MembershipApiMethodEnum.GetUserByUsername, requestParameters);
-            var user = JsonConvert.DeserializeObject<UserDocument>(result.data);
-
-            return user;
-        }
-
         public bool HasAccess(string userId, params UserPermissionEnum[] permissions)
         {
             var permissionsString = String.Join(",", permissions.Select(x => (int)x));
@@ -181,7 +191,7 @@ namespace mPower.MembershipApi
             return new Uri(String.Format("{0}/{1}", _apiBaseUrl, method));
         }
 
-        private ApiResponseObject ExecuteAction(MembershipApiMethodEnum method, NameValueCollection parameters)
+        private ApiResponseObject ExecuteAction(MembershipApiMethodEnum method, NameValueCollection parameters, bool exceptionOnErrorCode = true)
         {
             parameters.Add("key", _apiPrivateKey);
             var queryString = ToQueryString(parameters);
@@ -199,25 +209,35 @@ namespace mPower.MembershipApi
 
             string responseText;
 
-            using (var response = (HttpWebResponse)request.GetResponse())
+            try
             {
-                using (var answerReader = new StreamReader(response.GetResponseStream()))
+                using (var response = (HttpWebResponse)request.GetResponse())
                 {
-                    responseText = answerReader.ReadToEnd();
+                    using (var answerReader = new StreamReader(response.GetResponseStream()))
+                    {
+                        responseText = answerReader.ReadToEnd();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                throw new MembershipApiException(String.Format("Membership api: Unable to receive response from the following server: {0} | Server log: {1}", _apiBaseUrl, e.ToString()), MembershipApiErrorCodesEnum.ApiCallServerError, e.ToString());
             }
 
             var item = JsonConvert.DeserializeObject<ApiResponseObject>(responseText);
-            
 
-            //I am not throw exception for the ModelState errors
-            if (item.status == ApiResponseStatusEnum.Error && item.error_code != MembershipApiErrorCodesEnum.ModelStateErrors)
+            if (item.error_code == MembershipApiErrorCodesEnum.InvalidApiKey)
             {
-                throw new Exception(String.Format("Remote server returned following error code: {0}({1}), {2}",
-                                                                                                        item.status,
+                throw new MembershipApiException(String.Format("Membership api: Invalid api key provided."), item.error_code, String.Empty);
+            }
+            else if (item.status == ApiResponseStatusEnum.Error &&
+                item.error_code != MembershipApiErrorCodesEnum.ModelStateErrors &&
+                exceptionOnErrorCode)
+            {
+                throw new MembershipApiException(String.Format("Membership api: Remote server returned following error code: {0}, server log:  {1}",
                                                                                                         item.error_code,
                                                                                                         item.log
-                                                                                                        ));
+                                                                                                        ), item.error_code, item.log);
             }
 
             return item;

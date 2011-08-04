@@ -8,6 +8,7 @@ namespace mPower.MembershipApi.Enums
         UserNameExists = 2,
         UserNotFound = 3,
         InvalidApiKey = 4,
-        InvalidChangePasswordToken = 5
+        InvalidChangePasswordToken = 5,
+        ApiCallServerError = 6
     }
 }

@@ -53,6 +53,7 @@
     <Compile Include="Enums\MembershipApiMethodEnum.cs" />
     <Compile Include="MembershipApiAccessDeniedException.cs" />
     <Compile Include="Enums\MembershipApiErrorCodesEnum.cs" />
+    <Compile Include="MembershipApiException.cs" />
     <Compile Include="MembershipApiService.cs" />
     <Compile Include="PermissionsAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
