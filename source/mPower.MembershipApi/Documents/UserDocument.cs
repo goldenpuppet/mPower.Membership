@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using mPower.MembershipApi.Enums;
 
 namespace mPower.MembershipApi.Documents
 {
@@ -29,5 +31,7 @@ namespace mPower.MembershipApi.Documents
         public DateTime LastLoginDate { get; set; }
 
         public DateTime LastPasswordChangedDate { get; set; }
+
+        public List<UserPermissionEnum> Permissions { get; set; }
     }
 }

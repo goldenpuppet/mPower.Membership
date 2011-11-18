@@ -6,7 +6,7 @@ namespace mPower.MembershipApi.Examples
 {
     class Program
     {
-        private static string _apiPrivateKey = "F89DA1C7DC2B40319802BCF4F6B2C121";
+        private static string _apiPrivateKey = "ee8f6240b612168390eef1abe983288d";
         private static string _apiBaseUrl = "http://staging.mpowering.com/api/membership";
         private static string _apiBaseUrlLocal = "http://localhost:8080/api/membership";
 
@@ -14,6 +14,10 @@ namespace mPower.MembershipApi.Examples
         static void Main(string[] args)
         {
             var membershipService = new MembershipApiService(_apiPrivateKey, _apiBaseUrl);
+            var token1 = membershipService.GetResetPasswodToken("demo");
+
+            var newPassword1 = membershipService.ResetPassword(token1);
+
             UserDocument user;
             var userId = String.Empty;
             var email = "test@test.com";
